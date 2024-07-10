@@ -1,4 +1,6 @@
 import 'dart:math';
+// import 'package:flutter/services.dart';
+
 import 'components/chart.dart';
 import 'package:expenses/components/transaction_form.dart';
 import 'components/transaction_list.dart';
@@ -15,6 +17,9 @@ class ExpensesApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Comando para deixar a aplicação em apenas uma orientação.
+    // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
     return MaterialApp(
       home: const MyHomePage(),
       theme: tema.copyWith(
@@ -24,17 +29,20 @@ class ExpensesApp extends StatelessWidget {
           tertiary: Colors.white,
         ),
         textTheme: tema.textTheme.copyWith(
+          // ignore: deprecated_member_use
           headline6: const TextStyle(
             fontFamily: 'OpenSans',
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
+          // ignore: deprecated_member_use
           button: const TextStyle(
             color: Colors.white,
           ),
         ),
         appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.purple,
           titleTextStyle: TextStyle(
             fontFamily: 'OpenSans',
             fontSize: 20,
@@ -57,38 +65,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Transaction> _transactions = [
-    // Transaction(
-    //   id: 't0',
-    //   title: 'Conta antiga teste',
-    //   value: 100.05,
-    //   date: DateTime.now().subtract(const Duration(days: 35)),
-    // ),
-    // Transaction(
-    //   id: 't1',
-    //   title: 'Novo tênis de corrida',
-    //   value: 310.76,
-    //   date: DateTime.now().subtract(const Duration(days: 3)),
-    // ),
-    // Transaction(
-    //   id: 't2',
-    //   title: 'Conta de luz',
-    //   value: 211.30,
-    //   date: DateTime.now().subtract(const Duration(days: 4)),
-    // ),
-    // Transaction(
-    //   id: 't3',
-    //   title: 'Conta de agua',
-    //   value: 51.70,
-    //   date: DateTime.now(),
-    // ),
-    // Transaction(
-    //   id: 't2',
-    //   title: 'Parcela do sócio',
-    //   value: 211.30,
-    //   date: DateTime.now(),
-    // ),
-  ];
+  final List<Transaction> _transactions = [];
+  bool _showChart = false;
 
   List<Transaction> get _recentTransactions {
     return _transactions.where((tr) {
@@ -130,40 +108,57 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Verificando se a orientação de tela atual é paisagem
+    bool isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
+    final appBar = AppBar(
+      title: const Text('Despesas Pessoais'),
+      // style: TextStyle(
+      //   fontSize: 10 * MediaQuery.of(context).textScaleFactor,
+      // )),
+      actions: <Widget>[
+        IconButton(
+          icon: const Icon(Icons.add),
+          onPressed: () => _openTransactionFormModal(context),
+        )
+      ],
+    );
+
+    final availableHeight = MediaQuery.of(context).size.height -
+        appBar.preferredSize.height -
+        MediaQuery.of(context).padding.top;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Despesas Pessoais'),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _openTransactionFormModal(context),
-          )
-        ],
-      ),
+      appBar: appBar,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Chart(_recentTransactions),
-            // Container(
-            //   width: double.infinity,
-            //   child: const Card(
-            //     color: Colors.blue,
-            //     elevation: 5,
-            //     child: Text(
-            //       'Gráfico',
-            //       // textAlign: TextAlign.center,
-            //     ),
-            //   ),
-            // ),
-            TransactionList(_transactions, _removeTransaction),
-            // const TransactionUser(),
-            // Column(
-            //   children: <Widget>[
-            //     TransactionList(transactions: _transactions),
-            //     TransactionForm(_addTransaction),
-            //   ],
-            // ),
+            if (isLandscape)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  const Text('Exibir Gráfico'),
+                  Switch(
+                      value: _showChart,
+                      onChanged: (value) {
+                        setState(() {
+                          _showChart = value;
+                        });
+                      }),
+                ],
+              ),
+            if (_showChart || !isLandscape)
+              SizedBox(
+                height: availableHeight * (isLandscape ? 0.70 : 0.30),
+                child: Chart(_recentTransactions),
+              ),
+            if (!_showChart || !isLandscape)
+              SizedBox(
+                height: availableHeight * 0.70,
+                child: TransactionList(_transactions, _removeTransaction),
+              ),
           ],
         ),
       ),
