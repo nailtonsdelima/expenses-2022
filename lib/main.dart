@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:math';
 import 'dart:io';
 // import 'package:flutter/services.dart';
@@ -103,17 +105,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _openTransactionFormModal(BuildContext context) {
     showModalBottomSheet(
-        context: context,
-        builder: (_) {
-          return TransactionForm(_addTransaction);
-        });
+      context: context,
+      builder: (_) {
+        return TransactionForm(_addTransaction);
+      },
+    );
   }
 
   Widget _getIconButton(IconData icon, Function fn) {
     return Platform.isIOS
-        ? GestureDetector(onTap: () => fn, child: Icon(icon))
+        ? GestureDetector(child: Icon(icon), onTap: () => fn)
         : IconButton(
-            icon: Icon(icon), onPressed: () => fn, color: Colors.white);
+            icon: Icon(icon, color: Colors.white),
+            onPressed: () => (fn),
+          );
   }
 
   @override
@@ -130,11 +135,9 @@ class _MyHomePageState extends State<MyHomePage> {
       if (isLandscape)
         _getIconButton(
           _showChart ? iconList : chartList,
-          () => {
-            setState(() {
-              _showChart = !_showChart;
-            })
-          },
+          () => setState(() {
+            _showChart = !_showChart;
+          }),
         ),
       _getIconButton(
         Platform.isIOS ? CupertinoIcons.add : Icons.add,
@@ -177,6 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onChanged: (value) {
                       setState(() {
                         _showChart = value;
+                        print(value);
                       });
                     }),
               ],

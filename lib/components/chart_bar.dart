@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 // ignore: must_be_immutable
 class ChartBar extends StatelessWidget {
@@ -32,7 +31,7 @@ class ChartBar extends StatelessWidget {
               height: constraints.maxHeight * 0.05,
             ),
             // ignore: sized_box_for_whitespace
-            Container(
+            SizedBox(
               // height: 60,
               height: constraints.maxHeight * 0.6,
               width: 10,
@@ -65,7 +64,7 @@ class ChartBar extends StatelessWidget {
               // height: 5,
               height: constraints.maxHeight * 0.05,
             ),
-            Container(
+            SizedBox(
               height: constraints.maxHeight * 0.15,
               child: FittedBox(
                 child: Text(label),
